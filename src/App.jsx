@@ -24,7 +24,10 @@ import {
   Play,
   Pause,
   Volume2,
-  VolumeX
+  VolumeX,
+  Code2,
+  AlertTriangle,
+  FileSpreadsheet
 } from 'lucide-react';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import {
@@ -51,49 +54,87 @@ ChartJS.register(
 );
 
 const INITIAL_TODOS = [
-  { id: 1, text: "Revise React Three Fiber basics", completed: true },
-  { id: 2, text: "Design 3D background shapes", completed: true },
-  { id: 3, text: "Hook up local storage state", completed: false }
+  { id: 1, text: "Revise Operating Systems Paging concepts", completed: true },
+  { id: 2, text: "Solve 5 LeetCode Medium problems on Dynamic Programming", completed: false },
+  { id: 3, text: "Enter yesterday's DBMS mistake in the Mistake Notebook", completed: false }
 ];
 
 const INITIAL_TARGETS = [
-  { day: "Monday", targetHours: 5, actualHours: 4.5 },
-  { day: "Tuesday", targetHours: 5, actualHours: 6.0 },
-  { day: "Wednesday", targetHours: 4, actualHours: 0 }, 
-  { day: "Thursday", targetHours: 5, actualHours: 5.0 },
-  { day: "Friday", targetHours: 6, actualHours: 3.5 },
-  { day: "Saturday", targetHours: 6, actualHours: 7.0 },
-  { day: "Sunday", targetHours: 4, actualHours: 0 }
+  { day: "Monday", targetHours: 6, actualHours: 5.5 },
+  { day: "Tuesday", targetHours: 6, actualHours: 6.5 },
+  { day: "Wednesday", targetHours: 5, actualHours: 0 }, 
+  { day: "Thursday", targetHours: 6, actualHours: 5.0 },
+  { day: "Friday", targetHours: 7, actualHours: 4.5 },
+  { day: "Saturday", targetHours: 7, actualHours: 8.0 },
+  { day: "Sunday", targetHours: 5, actualHours: 0 }
 ];
 
-const INITIAL_SYLLABUS = {
-  "React & WebGL": [
-    { chapter: "Fiber Canvas & Camera", status: "completed" },
-    { chapter: "Floating Mesh Geometries", status: "completed" },
-    { chapter: "Orbit Controls & Drei Hooks", status: "in-progress" },
-    { chapter: "Custom shaders & Lighting", status: "not-started" }
+const INITIAL_GATE_SYLLABUS = {
+  "Operating Systems": [
+    { chapter: "Process", status: "completed" },
+    { chapter: "Threads", status: "completed" },
+    { chapter: "Scheduling", status: "not-started" },
+    { chapter: "Deadlock", status: "not-started" },
+    { chapter: "Memory Management", status: "not-started" },
+    { chapter: "Paging & Segmentation", status: "not-started" },
+    { chapter: "File System", status: "not-started" }
   ],
-  "JavaScript & DSA": [
-    { chapter: "Array Iteration & Map/Reduce", status: "completed" },
-    { chapter: "Binary Search Trees", status: "completed" },
-    { chapter: "Graph Traversals", status: "not-started" }
+  "Database Management Systems": [
+    { chapter: "ER Model", status: "completed" },
+    { chapter: "Relational Algebra", status: "completed" },
+    { chapter: "SQL Queries", status: "in-progress" },
+    { chapter: "Normalization", status: "not-started" },
+    { chapter: "Transactions & Concurrency Control", status: "not-started" }
+  ],
+  "Computer Networks": [
+    { chapter: "OSI & TCP/IP Stack Layers", status: "completed" },
+    { chapter: "IP Addressing & Subnetting", status: "in-progress" },
+    { chapter: "Routing Protocols", status: "not-started" },
+    { chapter: "TCP/UDP & Flow Control", status: "not-started" }
+  ],
+  "Algorithms & DSA": [
+    { chapter: "Asymptotic Complexity", status: "completed" },
+    { chapter: "Searching & Sorting", status: "completed" },
+    { chapter: "Divide and Conquer / Greedy", status: "in-progress" },
+    { chapter: "Dynamic Programming", status: "not-started" },
+    { chapter: "Graph Algorithms (DFS/BFS/Dijkstra)", status: "not-started" }
   ]
 };
 
+const INITIAL_MISTAKES = [
+  { id: 1, question: "GATE 2022 OS Scheduling question - Gantt chart error", reason: "Calculation error", concept: "CPU Scheduling", revisionDate: "2026-06-28", done: false },
+  { id: 2, question: "DBMS Normalization finding candidate key", reason: "Conceptual gap", concept: "Functional Dependency", revisionDate: "2026-06-26", done: true }
+];
+
+const INITIAL_PYQS = [
+  { id: 1, subject: "Operating Systems", topic: "CPU Scheduling", difficulty: "Medium", year: "2023", attempt: "Solved", analysis: "Got standard Gantt chart solved, watch out for context switch overhead." },
+  { id: 2, subject: "Computer Networks", topic: "TCP Congestion Control", difficulty: "Hard", year: "2024", attempt: "Re-attempt needed", analysis: "Formula for threshold reduction on 3 duplicate ACKs vs timeout." }
+];
+
+const INITIAL_NOTES = [
+  { id: 1, title: "OS: Process vs Thread Notes", type: "Markdown", content: "### Process vs Thread\n- Process: Independent execution unit, has own memory space.\n- Thread: Lightweight sub-process, shares memory space of parent.", date: "2026-06-24" },
+  { id: 2, title: "DBMS: Normalization Handouts", type: "PDF", content: "Standard PDF reference of 1NF, 2NF, 3NF, BCNF", date: "2026-06-25", progress: 60 }
+];
+
+const INITIAL_FLASHCARDS = [
+  { id: 1, question: "What is the condition for Deadlock prevention in Havender's algorithm?", answer: "Eliminate one of: Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait.", subject: "Operating Systems", reviewNeeded: false },
+  { id: 2, question: "Difference between 3NF and BCNF?", answer: "BCNF does not allow a non-prime attribute to determine a prime attribute. In BCNF, X -> Y requires X to be a super key.", subject: "Database Systems", reviewNeeded: true }
+];
+
 // Preloaded logs database containing Energy Levels
 const INITIAL_LOGS = {
-  "2026-06-19": { studied: true, hours: 4.5, energy: "Medium", topics: "React fundamentals & hooks", notes: "Very productive day" },
-  "2026-06-20": { studied: true, hours: 6.0, energy: "High", topics: "JavaScript arrays & map/reduce", notes: "Completed homework" },
+  "2026-06-19": { studied: true, hours: 4.5, energy: "Medium", topics: "Operating Systems basic paging", notes: "Very productive day" },
+  "2026-06-20": { studied: true, hours: 6.0, energy: "High", topics: "Normalization in DBMS", notes: "Completed homework" },
   "2026-06-21": { studied: false, hours: 0, energy: "Low", reason: "Illness / tired", notes: "Severe fever, took full rest" },
-  "2026-06-22": { studied: true, hours: 5.0, energy: "High", topics: "R3F custom shaders", notes: "Tough concepts but exciting output" },
-  "2026-06-23": { studied: true, hours: 3.5, energy: "Medium", topics: "Vite config & styling", notes: "Setup grid layout" },
-  "2026-06-24": { studied: true, hours: 7.0, energy: "High", topics: "ChartJS integration & database setup", notes: "Scaffolded routes" }
+  "2026-06-22": { studied: true, hours: 5.0, energy: "High", topics: "Graphs & DFS algorithms", notes: "Tough concepts but exciting output" },
+  "2026-06-23": { studied: true, hours: 3.5, energy: "Medium", topics: "IP Addressing in CN", notes: "Setup subnet math" },
+  "2026-06-24": { studied: true, hours: 7.0, energy: "High", topics: "transactions and concurrency", notes: "Worked on conflict serializability" }
 };
 
-// Default initial spaced repetition reviews (e.g. mock reviews scheduled for today)
+// Default initial spaced repetition reviews
 const INITIAL_REVIEWS = [
-  { id: "sr-mock-1", chapter: "Fiber Canvas & Camera", subject: "React & WebGL", scheduledDate: "2026-06-25", completed: false },
-  { id: "sr-mock-2", chapter: "Binary Search Trees", subject: "JavaScript & DSA", scheduledDate: "2026-06-25", completed: false }
+  { id: "sr-mock-1", chapter: "Process", subject: "Operating Systems", scheduledDate: "2026-06-25", completed: false },
+  { id: "sr-mock-2", chapter: "ER Model", subject: "Database Management Systems", scheduledDate: "2026-06-25", completed: false }
 ];
 
 export default function App() {
@@ -107,8 +148,8 @@ export default function App() {
     return saved ? JSON.parse(saved) : INITIAL_TARGETS;
   });
   const [syllabus, setSyllabus] = useState(() => {
-    const saved = localStorage.getItem('syllabus');
-    return saved ? JSON.parse(saved) : INITIAL_SYLLABUS;
+    const saved = localStorage.getItem('gate_syllabus');
+    return saved ? JSON.parse(saved) : INITIAL_GATE_SYLLABUS;
   });
   const [logs, setLogs] = useState(() => {
     const saved = localStorage.getItem('logs');
@@ -143,15 +184,74 @@ export default function App() {
   const audioContextRef = useRef(null);
   const audioNodesRef = useRef({});
 
-  // Feature 2: AI Roadmap Planner States
-  const [roadmapSubject, setRoadmapSubject] = useState('');
-  const [roadmapExamDate, setRoadmapExamDate] = useState('2026-07-15');
-  const [roadmapTopics, setRoadmapTopics] = useState('');
-  const [isGeneratingRoadmap, setIsGeneratingRoadmap] = useState(false);
-  const [generatedMilestones, setGeneratedMilestones] = useState(() => {
-    const saved = localStorage.getItem('generated_milestones');
-    return saved ? JSON.parse(saved) : [];
+  // GATE Preparation Custom States
+  // 1. Digital Notes & Flashcards
+  const [notes, setNotes] = useState(() => {
+    const saved = localStorage.getItem('gate_notes');
+    return saved ? JSON.parse(saved) : INITIAL_NOTES;
   });
+  const [flashcards, setFlashcards] = useState(() => {
+    const saved = localStorage.getItem('gate_flashcards');
+    return saved ? JSON.parse(saved) : INITIAL_FLASHCARDS;
+  });
+  const [searchNotesQuery, setSearchNotesQuery] = useState('');
+  const [currentFCIndex, setCurrentFCIndex] = useState(0);
+  const [fcFlipped, setFcFlipped] = useState(false);
+
+  // 2. Coding Practice states
+  const [leetcodeCount, setLeetcodeCount] = useState(() => {
+    const saved = localStorage.getItem('coding_leetcode');
+    return saved ? parseInt(saved) : 45;
+  });
+  const [gfgCount, setGfgCount] = useState(() => {
+    const saved = localStorage.getItem('coding_gfg');
+    return saved ? parseInt(saved) : 60;
+  });
+  const [hackerRankCount, setHackerRankCount] = useState(() => {
+    const saved = localStorage.getItem('coding_hackerrank');
+    return saved ? parseInt(saved) : 25;
+  });
+  const [aiAnalysis, setAiAnalysis] = useState(() => {
+    const saved = localStorage.getItem('coding_ai_analysis');
+    return saved ? saved : "Average time complexity is O(N log N). Space complexity optimization is needed on Graph questions. Focus on Dynamic Programming to improve LeetCode ratio.";
+  });
+  const [isAnalyzingCoding, setIsAnalyzingCoding] = useState(false);
+
+  // 3. Mistake Notebook states
+  const [mistakes, setMistakes] = useState(() => {
+    const saved = localStorage.getItem('gate_mistakes');
+    return saved ? JSON.parse(saved) : INITIAL_MISTAKES;
+  });
+
+  // 4. PYQ Engine states
+  const [pyqsList, setPyqsList] = useState(() => {
+    const saved = localStorage.getItem('gate_pyqs');
+    return saved ? JSON.parse(saved) : INITIAL_PYQS;
+  });
+
+  // Form states for new inputs
+  const [noteTitle, setNoteTitle] = useState('');
+  const [noteType, setNoteType] = useState('Markdown'); // 'Markdown' | 'Handwritten' | 'PDF'
+  const [noteContent, setNoteContent] = useState('');
+  const [noteProgress, setNoteProgress] = useState(0);
+
+  const [fcQuestion, setFcQuestion] = useState('');
+  const [fcAnswer, setFcAnswer] = useState('');
+  const [fcSubject, setFcSubject] = useState('Operating Systems');
+
+  const [mistakeQ, setMistakeQ] = useState('');
+  const [mistakeReason, setMistakeReason] = useState('Calculation error');
+  const [mistakeConcept, setMistakeConcept] = useState('');
+  const [mistakeDate, setMistakeDate] = useState('2026-06-26');
+  const [searchMistakeQuery, setSearchMistakeQuery] = useState('');
+
+  const [pyqSubj, setPyqSubj] = useState('Operating Systems');
+  const [pyqTopic, setPyqTopic] = useState('');
+  const [pyqDifficulty, setPyqDifficulty] = useState('Medium');
+  const [pyqYear, setPyqYear] = useState('2024');
+  const [pyqAttempt, setPyqAttempt] = useState('Solved');
+  const [pyqAnalysis, setPyqAnalysis] = useState('');
+  const [searchPyqQuery, setSearchPyqQuery] = useState('');
 
   // Sync to localStorage
   useEffect(() => {
@@ -163,7 +263,7 @@ export default function App() {
   }, [targets]);
 
   useEffect(() => {
-    localStorage.setItem('syllabus', JSON.stringify(syllabus));
+    localStorage.setItem('gate_syllabus', JSON.stringify(syllabus));
   }, [syllabus]);
 
   useEffect(() => {
@@ -191,8 +291,36 @@ export default function App() {
   }, [pomoCount]);
 
   useEffect(() => {
-    localStorage.setItem('generated_milestones', JSON.stringify(generatedMilestones));
-  }, [generatedMilestones]);
+    localStorage.setItem('gate_notes', JSON.stringify(notes));
+  }, [notes]);
+
+  useEffect(() => {
+    localStorage.setItem('gate_flashcards', JSON.stringify(flashcards));
+  }, [flashcards]);
+
+  useEffect(() => {
+    localStorage.setItem('coding_leetcode', leetcodeCount);
+  }, [leetcodeCount]);
+
+  useEffect(() => {
+    localStorage.setItem('coding_gfg', gfgCount);
+  }, [gfgCount]);
+
+  useEffect(() => {
+    localStorage.setItem('coding_hackerrank', hackerRankCount);
+  }, [hackerRankCount]);
+
+  useEffect(() => {
+    localStorage.setItem('coding_ai_analysis', aiAnalysis);
+  }, [aiAnalysis]);
+
+  useEffect(() => {
+    localStorage.setItem('gate_mistakes', JSON.stringify(mistakes));
+  }, [mistakes]);
+
+  useEffect(() => {
+    localStorage.setItem('gate_pyqs', JSON.stringify(pyqsList));
+  }, [pyqsList]);
 
   // Form states
   const [newTodo, setNewTodo] = useState('');
@@ -455,80 +583,67 @@ export default function App() {
     startAmbientSound(ambientSound);
   }, [ambientSound]);
 
-  // Feature 2: AI Roadmap Planner helper
-  const handleGenerateRoadmap = (e) => {
+  // Digital Notes helper functions
+  const handleAddNote = (e) => {
     e.preventDefault();
-    if (!roadmapSubject.trim() || !roadmapTopics.trim()) return;
-    
-    setIsGeneratingRoadmap(true);
-    setTimeout(() => {
-      const topicsArr = roadmapTopics.split(/[,\n]/)
-        .map(t => t.trim())
-        .filter(t => t.length > 0);
-      
-      const today = new Date(todayDateStr);
-      const exam = new Date(roadmapExamDate);
-      const diffTime = Math.max(0, exam - today);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      const milestones = topicsArr.map((topic, idx) => {
-        const targetDay = Math.min(diffDays - 1, Math.round(((idx + 1) / (topicsArr.length + 1)) * diffDays));
-        const milestoneDate = new Date(today);
-        milestoneDate.setDate(milestoneDate.getDate() + targetDay);
-        
-        return {
-          id: `milestone-${idx}-${Date.now()}`,
-          phase: `Phase ${idx + 1}`,
-          title: topic,
-          targetHours: Math.min(8, 2 + (idx % 3)),
-          scheduledDate: milestoneDate.toISOString().split('T')[0]
-        };
-      });
-
-      setGeneratedMilestones(milestones);
-      setIsGeneratingRoadmap(false);
-    }, 1500);
+    if (!noteTitle.trim() || !noteContent.trim()) return;
+    const newNote = {
+      id: Date.now(),
+      title: noteTitle.trim(),
+      type: noteType,
+      content: noteContent.trim(),
+      progress: noteType === 'PDF' ? parseInt(noteProgress) : undefined,
+      date: todayDateStr
+    };
+    setNotes(prev => [newNote, ...prev]);
+    setNoteTitle('');
+    setNoteContent('');
+    setNoteProgress(0);
+    alert('Note added successfully!');
   };
 
-  const handleImportRoadmap = () => {
-    if (generatedMilestones.length === 0 || !roadmapSubject.trim()) return;
-    
-    const subjName = roadmapSubject.trim();
-    
-    setSyllabus(prev => {
-      const existingChapters = prev[subjName] || [];
-      const newChapters = generatedMilestones.map(m => ({
-        chapter: m.title,
-        status: 'not-started'
-      }));
-      
-      const mergedChapters = [...existingChapters];
-      newChapters.forEach(nc => {
-        if (!mergedChapters.some(c => c.chapter === nc.chapter)) {
-          mergedChapters.push(nc);
-        }
-      });
-      
-      return {
-        ...prev,
-        [subjName]: mergedChapters
-      };
-    });
+  const handleDeleteNote = (id) => {
+    if (!window.confirm('Delete this note?')) return;
+    setNotes(prev => prev.filter(n => n.id !== id));
+  };
 
-    setTodos(prev => {
-      const newTodos = generatedMilestones.map(m => ({
-        id: Date.now() + Math.random(),
-        text: `Study ${subjName}: ${m.title} (Target: ${m.targetHours}h by ${m.scheduledDate})`,
-        completed: false
-      }));
-      return [...prev, ...newTodos];
-    });
+  const handleUpdateNoteProgress = (id, prog) => {
+    setNotes(prev => prev.map(n => {
+      if (n.id === id) return { ...n, progress: Math.min(100, Math.max(0, parseInt(prog))) };
+      return n;
+    }));
+  };
 
-    alert(`Successfully imported subject "${subjName}" with ${generatedMilestones.length} chapters to your Syllabus Tracker & created study tasks!`);
-    setGeneratedMilestones([]);
-    setRoadmapSubject('');
-    setRoadmapTopics('');
-    setActiveTab('syllabus');
+  // Flashcards helper functions
+  const handleAddFlashcard = (e) => {
+    e.preventDefault();
+    if (!fcQuestion.trim() || !fcAnswer.trim()) return;
+    const newFC = {
+      id: Date.now(),
+      question: fcQuestion.trim(),
+      answer: fcAnswer.trim(),
+      subject: fcSubject,
+      reviewNeeded: false
+    };
+    setFlashcards(prev => [...prev, newFC]);
+    setFcQuestion('');
+    setFcAnswer('');
+    alert('Flashcard added successfully!');
+  };
+
+  const handleToggleFlashcardReview = (id) => {
+    setFlashcards(prev => prev.map(fc => {
+      if (fc.id === id) return { ...fc, reviewNeeded: !fc.reviewNeeded };
+      return fc;
+    }));
+  };
+
+  const handleDeleteFlashcard = (id) => {
+    if (!window.confirm('Delete this flashcard?')) return;
+    setFlashcards(prev => prev.filter(fc => fc.id !== id));
+    if (currentFCIndex >= flashcards.length - 1 && currentFCIndex > 0) {
+      setCurrentFCIndex(currentFCIndex - 1);
+    }
   };
 
   // Auto-fill form values if today's log already exists in database
@@ -605,6 +720,86 @@ export default function App() {
       ]
     }));
     setNewChapter('');
+  };
+
+  // Mistake Notebook helper functions
+  const handleAddMistake = (e) => {
+    e.preventDefault();
+    if (!mistakeQ.trim() || !mistakeConcept.trim()) return;
+    const newMistake = {
+      id: Date.now(),
+      question: mistakeQ.trim(),
+      reason: mistakeReason,
+      concept: mistakeConcept.trim(),
+      revisionDate: mistakeDate,
+      done: false
+    };
+    setMistakes(prev => [newMistake, ...prev]);
+    setMistakeQ('');
+    setMistakeConcept('');
+    alert('Mistake logged successfully!');
+  };
+
+  const handleToggleMistake = (id) => {
+    setMistakes(prev => prev.map(m => {
+      if (m.id === id) return { ...m, done: !m.done };
+      return m;
+    }));
+  };
+
+  const handleDeleteMistake = (id) => {
+    if (!window.confirm('Delete this mistake log?')) return;
+    setMistakes(prev => prev.filter(m => m.id !== id));
+  };
+
+  // PYQ Engine helper functions
+  const handleAddPyq = (e) => {
+    e.preventDefault();
+    if (!pyqTopic.trim() || !pyqAnalysis.trim()) return;
+    const newPyq = {
+      id: Date.now(),
+      subject: pyqSubj,
+      topic: pyqTopic.trim(),
+      difficulty: pyqDifficulty,
+      year: pyqYear,
+      attempt: pyqAttempt,
+      analysis: pyqAnalysis.trim()
+    };
+    setPyqsList(prev => [newPyq, ...prev]);
+    setPyqTopic('');
+    setPyqAnalysis('');
+    alert('PYQ attempt logged successfully!');
+  };
+
+  const handleUpdatePyqAttempt = (id, attempt) => {
+    setPyqsList(prev => prev.map(p => {
+      if (p.id === id) return { ...p, attempt };
+      return p;
+    }));
+  };
+
+  const handleDeletePyq = (id) => {
+    if (!window.confirm('Delete this PYQ record?')) return;
+    setPyqsList(prev => prev.filter(p => p.id !== id));
+  };
+
+  // AI Coding Performance Analysis Simulation
+  const handleTriggerAiAnalysis = () => {
+    setIsAnalyzingCoding(true);
+    setTimeout(() => {
+      const total = leetcodeCount + gfgCount + hackerRankCount;
+      let review = "";
+      if (total < 50) {
+        review = `Total problems solved: ${total}. Action Required: Problem count is low. Set a goal of solving 2 problems daily on LeetCode. Focus on Arrays, Linked Lists and Stacks first for basic strength.`;
+      } else if (total < 150) {
+        review = `Total problems solved: ${total} (LeetCode: ${leetcodeCount}, GFG: ${gfgCount}, HackerRank: ${hackerRankCount}). Good start! Solidify concepts by trying Medium level Dynamic Programming and Graph problems. Optimize time complexities to O(N log N) or O(N).`;
+      } else {
+        review = `Total problems solved: ${total} (LeetCode: ${leetcodeCount}, GFG: ${gfgCount}, HackerRank: ${hackerRankCount}). Advanced level! Focus on system optimization, recursion trees, and competitive programming. Master hard segment trees and heavy math-based algorithmic PYQs.`;
+      }
+      setAiAnalysis(review);
+      setIsAnalyzingCoding(false);
+      alert("AI analysis updated based on your current coding metrics!");
+    }, 1500);
   };
 
   // Toggle Chapter status + Trigger Spaced Repetition
@@ -701,6 +896,14 @@ export default function App() {
       });
     });
     return total === 0 ? 0 : Math.round((completed / total) * 100);
+  };
+
+  // Calculate specific subject progress
+  const getSubjectProgress = (subj) => {
+    const chapters = syllabus[subj] || [];
+    if (chapters.length === 0) return 0;
+    const completed = chapters.filter(c => c.status === 'completed').length;
+    return Math.round((completed / chapters.length) * 100);
   };
 
   // Active Recall reviews scheduled for today
@@ -879,8 +1082,11 @@ export default function App() {
     { id: 'todos', label: 'Daily Tasks', icon: CheckSquare },
     { id: 'targets', label: 'Weekly Targets', icon: Calendar },
     { id: 'pomodoro', label: 'Pomodoro Focus', icon: Timer },
-    { id: 'roadmap', label: 'Roadmap Planner', icon: Compass },
-    { id: 'syllabus', label: 'Syllabus Tracker', icon: Book },
+    { id: 'notes', label: 'Digital Notes', icon: FileText },
+    { id: 'coding', label: 'Coding Practice', icon: Code2 },
+    { id: 'mistakes', label: 'Mistake Notebook', icon: AlertTriangle },
+    { id: 'pyqs', label: 'PYQ Engine', icon: FileSpreadsheet },
+    { id: 'syllabus', label: 'Topic Roadmap', icon: Book },
     { id: 'analytics', label: 'Analytics & Reports', icon: BarChart3 }
   ];
 
@@ -1719,131 +1925,853 @@ export default function App() {
             </div>
           )}
 
-          {/* TAB: SYLLABUS ROADMAP PLANNER */}
-          {activeTab === 'roadmap' && (
-            <div className="space-y-6 animate-fadeIn">
-              <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
-                <Compass className="w-5 h-5 text-cyan-400" /> Syllabus Roadmap Planner
-              </h3>
-              <p className="text-xs text-gray-500">Auto-generate customized cognitive study milestones spacing based on exam dates</p>
+          {/* TAB: DIGITAL NOTES & FLASHCARDS */}
+          {activeTab === 'notes' && (
+            <div className="space-y-8 animate-fadeIn">
+              <div className="flex justify-between items-center flex-wrap gap-4">
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-purple-400" /> Digital Notes & Flashcards
+                  </h3>
+                  <p className="text-xs text-gray-500">Organize GATE CS study materials, scan handwritten notes, and train with flashcards</p>
+                </div>
+                
+                {/* Search notes bar */}
+                <input
+                  type="text"
+                  value={searchNotesQuery}
+                  onChange={(e) => setSearchNotesQuery(e.target.value)}
+                  placeholder="Search notes..."
+                  className="px-4 py-2 text-xs w-64"
+                />
+              </div>
 
+              {/* Flashcards player widget */}
+              <div className="glass-card p-6 border border-purple-500/10">
+                <h4 className="text-sm font-bold text-purple-300 mb-4 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" /> Spaced Repetition Flashcards Player
+                </h4>
+                
+                {flashcards.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                    
+                    {/* Left: Add Flashcard form */}
+                    <div className="glass bg-white/5 p-4 rounded-xl space-y-3">
+                      <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Add Flashcard</span>
+                      <form onSubmit={handleAddFlashcard} className="space-y-2">
+                        <input
+                          type="text"
+                          value={fcQuestion}
+                          onChange={(e) => setFcQuestion(e.target.value)}
+                          placeholder="Question (e.g. What is ACID?)"
+                          className="w-full text-xs"
+                          required
+                        />
+                        <input
+                          type="text"
+                          value={fcAnswer}
+                          onChange={(e) => setFcAnswer(e.target.value)}
+                          placeholder="Answer summary"
+                          className="w-full text-xs"
+                          required
+                        />
+                        <select
+                          value={fcSubject}
+                          onChange={(e) => setFcSubject(e.target.value)}
+                          className="w-full text-xs mt-1"
+                        >
+                          <option>Operating Systems</option>
+                          <option>Database Management Systems</option>
+                          <option>Computer Networks</option>
+                          <option>Algorithms & DSA</option>
+                        </select>
+                        <button type="submit" className="w-full py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-lg mt-2">
+                          Create Card
+                        </button>
+                      </form>
+                    </div>
+
+                    {/* Middle: 3D Flip Card */}
+                    <div className="md:col-span-2 flex flex-col items-center">
+                      <div 
+                        onClick={() => setFcFlipped(!fcFlipped)}
+                        className="flashcard-container w-full max-w-md h-48 cursor-pointer"
+                      >
+                        <div className={`flashcard-inner w-full h-full relative rounded-2xl border transition-all duration-500 ${
+                          fcFlipped ? 'flashcard-flipped border-purple-500 bg-purple-950/20 shadow-purple-500/10' : 'border-white/5 bg-white/5'
+                        }`}>
+                          
+                          {/* Front side */}
+                          <div className="flashcard-front absolute inset-0 p-6 flex flex-col justify-between items-center text-center">
+                            <span className="text-[9px] uppercase tracking-widest bg-purple-500/10 px-2 py-0.5 rounded text-purple-400 font-extrabold">
+                              {flashcards[currentFCIndex]?.subject} (Front)
+                            </span>
+                            <p className="text-sm font-semibold text-white px-2">
+                              {flashcards[currentFCIndex]?.question}
+                            </p>
+                            <span className="text-[9px] text-gray-500 font-medium">Click to see Answer</span>
+                          </div>
+
+                          {/* Back side */}
+                          <div className="flashcard-back absolute inset-0 p-6 flex flex-col justify-between items-center text-center">
+                            <span className="text-[9px] uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded text-emerald-400 font-extrabold">
+                              Answer (Back)
+                            </span>
+                            <p className="text-xs text-gray-300 px-2 leading-relaxed">
+                              {flashcards[currentFCIndex]?.answer}
+                            </p>
+                            <span className="text-[9px] text-gray-500 font-medium">Click to show Question</span>
+                          </div>
+
+                        </div>
+                      </div>
+
+                      {/* Card Nav Controls */}
+                      <div className="flex gap-4 items-center mt-4">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFcFlipped(false);
+                            setCurrentFCIndex(idx => (idx - 1 + flashcards.length) % flashcards.length);
+                          }}
+                          className="px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-xs hover:text-white"
+                        >
+                          Prev
+                        </button>
+                        
+                        <span className="text-xs text-gray-500">
+                          {currentFCIndex + 1} / {flashcards.length}
+                        </span>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFcFlipped(false);
+                            setCurrentFCIndex(idx => (idx + 1) % flashcards.length);
+                          }}
+                          className="px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-xs hover:text-white"
+                        >
+                          Next
+                        </button>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleFlashcardReview(flashcards[currentFCIndex].id);
+                          }}
+                          className={`ml-2 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition ${
+                            flashcards[currentFCIndex]?.reviewNeeded 
+                              ? 'bg-rose-500/20 border-rose-500 text-rose-300' 
+                              : 'bg-white/5 border-white/5 text-gray-400 hover:text-rose-400'
+                          }`}
+                        >
+                          {flashcards[currentFCIndex]?.reviewNeeded ? '★ Flagged for review' : '☆ Mark review'}
+                        </button>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteFlashcard(flashcards[currentFCIndex].id);
+                          }}
+                          className="text-gray-500 hover:text-rose-500 p-1 text-xs"
+                          title="Delete Card"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+                ) : (
+                  <div className="text-center py-10 border border-dashed border-white/10 rounded-xl">
+                    <p className="text-gray-500 text-sm font-semibold">No flashcards added yet</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Digital Notes Catalog Section */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                {/* Form Card */}
+                {/* Notes Input Panel */}
                 <div className="glass-card p-6">
-                  <h4 className="text-sm font-bold text-gray-300 mb-4">Plan Parameters</h4>
-                  <form onSubmit={handleGenerateRoadmap} className="space-y-4">
+                  <h4 className="text-sm font-bold text-gray-300 mb-4">Create Note File</h4>
+                  <form onSubmit={handleAddNote} className="space-y-4">
                     <div>
-                      <label className="block text-xs text-gray-400 mb-1.5 font-semibold">Subject Title</label>
+                      <label className="block text-xs text-gray-400 mb-1 font-semibold">Title</label>
                       <input
                         type="text"
-                        value={roadmapSubject}
-                        onChange={(e) => setRoadmapSubject(e.target.value)}
-                        placeholder="e.g. Computer Networks"
+                        value={noteTitle}
+                        onChange={(e) => setNoteTitle(e.target.value)}
+                        placeholder="e.g. Processes and Threads"
+                        className="w-full text-xs"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1 font-semibold">Note Format</label>
+                      <div className="flex gap-2">
+                        {['Markdown', 'Handwritten', 'PDF'].map(type => (
+                          <button
+                            key={type}
+                            type="button"
+                            onClick={() => setNoteType(type)}
+                            className={`flex-grow py-2 rounded-lg border text-xs font-bold transition ${
+                              noteType === type 
+                                ? 'bg-purple-600/20 border-purple-500 text-purple-300 shadow-md shadow-purple-500/10' 
+                                : 'bg-white/5 border-white/5 text-gray-400'
+                            }`}
+                          >
+                            {type}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {noteType === 'PDF' && (
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <label className="text-xs text-gray-400 font-semibold">Study Progress</label>
+                          <span className="text-cyan-400 text-xs font-bold">{noteProgress}%</span>
+                        </div>
+                        <input
+                          type="range" min="0" max="100" step="5" value={noteProgress}
+                          onChange={(e) => setNoteProgress(e.target.value)}
+                          className="w-full accent-purple-500"
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1 font-semibold">
+                        {noteType === 'Markdown' ? 'Note Content (supports MD)' : noteType === 'Handwritten' ? 'Link handwritten scans or draw details' : 'PDF Study reference details'}
+                      </label>
+                      <textarea
+                        value={noteContent}
+                        onChange={(e) => setNoteContent(e.target.value)}
+                        placeholder={
+                          noteType === 'Markdown' 
+                            ? "### Thread Types\n- User Level Threads\n- Kernel Level Threads..." 
+                            : "Enter handwritten source folder, scan metadata or drag sketches description..."
+                        }
+                        rows="6"
+                        className="w-full text-xs"
+                        required
+                      />
+                    </div>
+
+                    <button type="submit" className="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 shadow-lg">
+                      <Plus className="w-3.5 h-3.5" /> Save Note File
+                    </button>
+                  </form>
+                </div>
+
+                {/* Notes List Display */}
+                <div className="lg:col-span-2 space-y-4">
+                  <h4 className="text-sm font-bold text-gray-300">Saved Study Notes ({notes.length})</h4>
+                  
+                  <div className="space-y-4">
+                    {notes
+                      .filter(n => n.title.toLowerCase().includes(searchNotesQuery.toLowerCase()) || n.content.toLowerCase().includes(searchNotesQuery.toLowerCase()))
+                      .map(note => (
+                        <div key={note.id} className="glass-card p-5 border border-white/5 relative group animate-fadeIn">
+                          
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider border ${
+                                note.type === 'Markdown' 
+                                  ? 'bg-purple-500/10 border-purple-500/20 text-purple-400' 
+                                  : note.type === 'Handwritten' 
+                                    ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' 
+                                    : 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400'
+                              }`}>
+                                {note.type}
+                              </span>
+                              <h5 className="text-base font-bold text-white mt-2">{note.title}</h5>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] text-gray-500 font-semibold">{note.date}</span>
+                              <button 
+                                onClick={() => handleDeleteNote(note.id)}
+                                className="text-gray-500 hover:text-rose-500 p-1"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Content format display */}
+                          {note.type === 'Markdown' && (
+                            <div className="p-3 bg-slate-900/50 rounded-lg text-xs font-mono text-gray-300 border border-white/5 leading-relaxed whitespace-pre-wrap">
+                              {note.content}
+                            </div>
+                          )}
+
+                          {note.type === 'Handwritten' && (
+                            <div className="p-4 bg-slate-900/50 rounded-lg text-xs text-gray-300 border border-white/5 border-dashed flex flex-col items-center justify-center text-center gap-2">
+                              <span className="text-amber-400 font-extrabold text-[10px] uppercase">Handwritten Canvas Scanner</span>
+                              <p className="text-[11px] text-gray-500 max-w-xs">{note.content}</p>
+                              <button 
+                                type="button" 
+                                onClick={() => alert("Drawing canvas & scan upload is a mock! Connect local camera to capture written sheets.")}
+                                className="bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 px-3 py-1 rounded text-[10px] font-bold"
+                              >
+                                Trigger Scan Sheets
+                              </button>
+                            </div>
+                          )}
+
+                          {note.type === 'PDF' && (
+                            <div className="space-y-3 bg-slate-900/50 p-3 rounded-lg border border-white/5">
+                              <div className="flex justify-between text-xs items-center font-semibold">
+                                <span className="text-gray-400">PDF Reader Completed:</span>
+                                <span className="text-cyan-400">{note.progress || 0}%</span>
+                              </div>
+                              <input 
+                                type="range" min="0" max="100" step="5" value={note.progress || 0}
+                                onChange={(e) => handleUpdateNoteProgress(note.id, e.target.value)}
+                                className="w-full accent-cyan-500"
+                              />
+                              <p className="text-[11px] text-gray-500 italic mt-1">{note.content}</p>
+                            </div>
+                          )}
+
+                        </div>
+                      ))}
+                    
+                    {notes.length === 0 && (
+                      <div className="text-center py-10 border border-dashed border-white/10 rounded-xl text-gray-500">
+                        No notes recorded yet. Start logging details above.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* TAB: CODING PRACTICE */}
+          {activeTab === 'coding' && (
+            <div className="space-y-6 animate-fadeIn">
+              <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+                <Code2 className="w-5 h-5 text-purple-400" /> Coding Practice Tracker
+              </h3>
+              <p className="text-xs text-gray-500">Track and log your problem-solving metrics on LeetCode, GFG, and HackerRank.</p>
+
+              {/* Counter Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* LeetCode */}
+                <div className="glass-card p-6 border border-amber-500/10 hover:border-amber-500/20 transition-all duration-300">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-400">LeetCode</h4>
+                      <p className="text-xs text-gray-500">Solve daily challenges</p>
+                    </div>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                      LeetCode
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-4xl font-extrabold text-white">{leetcodeCount}</span>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => setLeetcodeCount(prev => Math.max(0, prev - 1))}
+                        className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition flex items-center justify-center font-bold text-lg text-gray-300"
+                      >
+                        -
+                      </button>
+                      <button 
+                        onClick={() => setLeetcodeCount(prev => prev + 1)}
+                        className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 hover:bg-amber-500/35 transition flex items-center justify-center font-bold text-lg text-amber-400"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* GeeksforGeeks */}
+                <div className="glass-card p-6 border border-emerald-500/10 hover:border-emerald-500/20 transition-all duration-300">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-400">GeeksforGeeks</h4>
+                      <p className="text-xs text-gray-500">Practice core concepts</p>
+                    </div>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                      GFG
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-4xl font-extrabold text-white">{gfgCount}</span>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => setGfgCount(prev => Math.max(0, prev - 1))}
+                        className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition flex items-center justify-center font-bold text-lg text-gray-300"
+                      >
+                        -
+                      </button>
+                      <button 
+                        onClick={() => setGfgCount(prev => prev + 1)}
+                        className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/35 transition flex items-center justify-center font-bold text-lg text-emerald-400"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* HackerRank */}
+                <div className="glass-card p-6 border border-cyan-500/10 hover:border-cyan-500/20 transition-all duration-300">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-400">HackerRank</h4>
+                      <p className="text-xs text-gray-500">Speed and syntax skill</p>
+                    </div>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-cyan-500 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                      HackerRank
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-4xl font-extrabold text-white">{hackerRankCount}</span>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => setHackerRankCount(prev => Math.max(0, prev - 1))}
+                        className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition flex items-center justify-center font-bold text-lg text-gray-300"
+                      >
+                        -
+                      </button>
+                      <button 
+                        onClick={() => setHackerRankCount(prev => prev + 1)}
+                        className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 hover:bg-cyan-500/35 transition flex items-center justify-center font-bold text-lg text-cyan-400"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* AI performance analysis section */}
+              <div className="glass-card p-6 border border-purple-500/10 hover:border-purple-500/20 transition-all duration-300">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                  <div>
+                    <h4 className="text-md font-bold text-white flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-purple-400 animate-pulse" /> AI Performance Analysis
+                    </h4>
+                    <p className="text-xs text-gray-500">Evaluate solved problem ratios and receive custom optimization roadmap insights.</p>
+                  </div>
+                  
+                  <button
+                    onClick={handleTriggerAiAnalysis}
+                    disabled={isAnalyzingCoding}
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white font-bold px-5 py-2 rounded-xl transition disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {isAnalyzingCoding ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" /> Trigger AI Review
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="p-5 bg-black/40 rounded-xl border border-white/5">
+                  <h5 className="text-xs font-black uppercase tracking-wider text-purple-400 mb-2">Diagnostic Summary</h5>
+                  <p className="text-sm font-medium text-gray-300 leading-relaxed italic text-start">
+                    &ldquo;{aiAnalysis}&ldquo;
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: MISTAKE NOTEBOOK */}
+          {activeTab === 'mistakes' && (
+            <div className="space-y-6 animate-fadeIn">
+              <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-400" /> Mistake Notebook
+              </h3>
+              <p className="text-xs text-gray-500">Log every mistake, analyze the failure reason, and revision schedule.</p>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Form column */}
+                <div className="glass-card p-6 h-fit">
+                  <h4 className="text-sm font-bold text-gray-300 mb-4 flex items-center gap-2">
+                    <Plus className="w-4 h-4 text-purple-400" /> Log New Mistake
+                  </h4>
+                  <form onSubmit={handleAddMistake} className="space-y-4">
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Question / Problem Description</label>
+                      <textarea
+                        value={mistakeQ}
+                        onChange={(e) => setMistakeQ(e.target.value)}
+                        placeholder="e.g. Find Candidate Key - missed transitive dependency X -> Z"
+                        rows="3"
                         className="w-full"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs text-gray-400 mb-1.5 font-semibold">Target Exam Date</label>
+                      <label className="block text-xs text-gray-400 mb-1">Reason for Error</label>
+                      <select
+                        value={mistakeReason}
+                        onChange={(e) => setMistakeReason(e.target.value)}
+                        className="w-full"
+                      >
+                        <option value="Calculation error">Calculation error</option>
+                        <option value="Conceptual gap">Conceptual gap</option>
+                        <option value="Silly mistake">Silly mistake</option>
+                        <option value="Time pressure">Time pressure</option>
+                        <option value="Misread question">Misread question</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Concept / Topic</label>
                       <input
-                        type="date"
-                        value={roadmapExamDate}
-                        onChange={(e) => setRoadmapExamDate(e.target.value)}
-                        className="w-full text-xs"
+                        type="text"
+                        value={mistakeConcept}
+                        onChange={(e) => setMistakeConcept(e.target.value)}
+                        placeholder="e.g. Candidate Key, DBMS Normalization"
+                        className="w-full"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs text-gray-400 mb-1.5 font-semibold">Syllabus Chapters (comma/line-separated)</label>
-                      <textarea
-                        value={roadmapTopics}
-                        onChange={(e) => setRoadmapTopics(e.target.value)}
-                        placeholder="e.g. Physical Layer, IP Addressing, Routing Protocols, TCP/UDP Flow Control"
-                        rows="5"
-                        className="w-full text-xs"
+                      <label className="block text-xs text-gray-400 mb-1">Target Revision Date</label>
+                      <input
+                        type="date"
+                        value={mistakeDate}
+                        onChange={(e) => setMistakeDate(e.target.value)}
+                        className="w-full"
                         required
                       />
                     </div>
 
                     <button
                       type="submit"
-                      disabled={isGeneratingRoadmap}
-                      className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+                      className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-bold py-2.5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
                     >
-                      {isGeneratingRoadmap ? (
-                        <>
-                          <RotateCcw className="w-4 h-4 animate-spin" /> Generating...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4" /> Generate Study Roadmap
-                        </>
-                      )}
+                      <Check className="w-4 h-4" /> Save Mistake Log
                     </button>
                   </form>
                 </div>
 
-                {/* Milestones Card */}
-                <div className="lg:col-span-2 glass-card p-6 flex flex-col justify-between">
-                  <div>
-                    <h4 className="text-sm font-bold text-gray-300 mb-4 flex items-center justify-between">
-                      <span>Generated Study Milestones</span>
-                      {generatedMilestones.length > 0 && (
-                        <button
-                          onClick={handleImportRoadmap}
-                          className="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-1.5 px-3.5 rounded-lg transition flex items-center gap-1.5"
-                        >
-                          <Plus className="w-3.5 h-3.5" /> Import to Syllabus Tracker
-                        </button>
-                      )}
-                    </h4>
+                {/* List column */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Search and Filters */}
+                  <div className="glass-card p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <input
+                      type="text"
+                      value={searchMistakeQuery}
+                      onChange={(e) => setSearchMistakeQuery(e.target.value)}
+                      placeholder="Search mistakes by question, concept or reason..."
+                      className="w-full md:w-96 text-sm"
+                    />
+                    <div className="flex gap-4 text-xs font-semibold text-gray-400">
+                      <div>Total: <span className="text-white">{mistakes.length}</span></div>
+                      <div>Pending: <span className="text-amber-400">{mistakes.filter(m => !m.done).length}</span></div>
+                      <div>Revised: <span className="text-emerald-400">{mistakes.filter(m => m.done).length}</span></div>
+                    </div>
+                  </div>
 
-                    {isGeneratingRoadmap ? (
-                      <div className="flex flex-col items-center justify-center py-20">
-                        <div className="relative w-16 h-16 mb-4">
-                          <div className="absolute inset-0 rounded-full border-4 border-cyan-500/20" />
-                          <div className="absolute inset-0 rounded-full border-4 border-t-cyan-500 animate-spin" />
-                        </div>
-                        <p className="text-xs font-bold text-cyan-400 uppercase tracking-widest animate-pulse">Running Cognitive Model Planner...</p>
-                        <p className="text-[10px] text-gray-500 mt-1">Analyzing syllabus density and spacing review periods</p>
-                      </div>
-                    ) : generatedMilestones.length > 0 ? (
-                      <div className="relative border-l border-white/10 pl-6 ml-2 space-y-6 my-2">
-                        {generatedMilestones.map((m, idx) => (
-                          <div key={m.id} className="relative group">
-                            {/* SVG node point */}
-                            <div className="absolute -left-9 top-1.5 w-6 h-6 rounded-full bg-slate-900 border-2 border-cyan-500 flex items-center justify-center text-[10px] font-bold text-cyan-400 group-hover:bg-cyan-500 group-hover:text-slate-900 transition">
-                              {idx + 1}
-                            </div>
-                            
-                            <div>
-                              <div className="flex flex-wrap items-baseline justify-between mb-1">
-                                <span className="font-bold text-white text-sm">{m.title}</span>
-                                <span className="text-[10px] text-gray-500 font-mono">{m.scheduledDate}</span>
-                              </div>
-                              <p className="text-xs text-gray-400 flex items-center gap-2">
-                                <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/5 text-[9px] font-black uppercase text-cyan-400">
-                                  {m.phase}
+                  {/* List Container */}
+                  <div className="space-y-4">
+                    {mistakes.filter(m => 
+                      m.question.toLowerCase().includes(searchMistakeQuery.toLowerCase()) ||
+                      m.concept.toLowerCase().includes(searchMistakeQuery.toLowerCase()) ||
+                      m.reason.toLowerCase().includes(searchMistakeQuery.toLowerCase())
+                    ).map((m, index, arr) => {
+                      // Color schemes depending on reason
+                      let badgeColor = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+                      if (m.reason === "Conceptual gap") badgeColor = "bg-rose-500/10 text-rose-400 border-rose-500/20";
+                      if (m.reason === "Silly mistake") badgeColor = "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
+                      if (m.reason === "Time pressure") badgeColor = "bg-purple-500/10 text-purple-400 border-purple-500/20";
+                      if (m.reason === "Misread question") badgeColor = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+
+                      return (
+                        <div 
+                          key={m.id} 
+                          className={`glass-card p-5 border transition-all duration-300 ${
+                            m.done 
+                              ? 'border-emerald-500/20 bg-emerald-950/5 opacity-60' 
+                              : 'border-white/5 hover:border-white/10'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start gap-4">
+                            <div className="space-y-2 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-[10px] font-bold tracking-widest text-purple-400 uppercase">
+                                  Mistake #{arr.length - index}
                                 </span>
-                                <span>Target: {m.targetHours} Hours focus study</span>
+                                <span className={`px-2 py-0.5 rounded-full border text-[9px] font-bold ${badgeColor}`}>
+                                  {m.reason}
+                                </span>
+                                {m.done && (
+                                  <span className="px-2 py-0.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 text-emerald-400 text-[9px] font-bold">
+                                    Revised
+                                  </span>
+                                )}
+                              </div>
+                              <p className={`text-sm font-medium text-white leading-relaxed ${m.done ? 'line-through text-gray-500' : ''}`}>
+                                {m.question}
                               </p>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-2 border-t border-white/5 text-xs text-gray-400">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-semibold text-gray-500">Concept:</span>
+                                  <span className="text-gray-300 font-medium">{m.concept}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <Calendar className="w-3.5 h-3.5 text-gray-500" />
+                                  <span className="font-semibold text-gray-500">Revision Date:</span>
+                                  <span className="text-gray-300 font-medium">{m.revisionDate}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleToggleMistake(m.id)}
+                                className={`p-2 rounded-lg border transition-all duration-200 ${
+                                  m.done 
+                                    ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400' 
+                                    : 'bg-white/5 border-white/10 text-gray-400 hover:bg-emerald-500/10 hover:border-emerald-500/20 hover:text-emerald-400'
+                                }`}
+                                title={m.done ? "Mark as Pending Revision" : "Mark as Revised"}
+                              >
+                                <Check className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteMistake(m.id)}
+                                className="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:bg-rose-500/10 hover:border-rose-500/20 hover:text-rose-400 transition-all duration-200"
+                                title="Delete Log"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center py-24 border border-dashed border-white/10 rounded-2xl">
-                        <Compass className="w-12 h-12 text-gray-600 mb-2" />
-                        <div className="text-gray-500 font-bold text-sm">No Roadmap Generated Yet</div>
-                        <div className="text-gray-600 text-[11px] mt-0.5 text-center px-4">Fill out the parameters on the left to organize your study sequence</div>
+                        </div>
+                      );
+                    })}
+
+                    {mistakes.length === 0 && (
+                      <div className="text-center py-12 glass-card border border-white/5 text-gray-500 text-sm">
+                        No mistakes logged yet. Click "Log New Mistake" to start keeping track of errors!
                       </div>
                     )}
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
 
+          {/* TAB: PYQ ENGINE */}
+          {activeTab === 'pyqs' && (
+            <div className="space-y-6 animate-fadeIn">
+              <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+                <FileSpreadsheet className="w-5 h-5 text-cyan-400" /> PYQ Engine
+              </h3>
+              <p className="text-xs text-gray-500">Track GATE Previous Year Questions (PYQs), difficulty levels, and solution reviews.</p>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Form column */}
+                <div className="glass-card p-6 h-fit">
+                  <h4 className="text-sm font-bold text-gray-300 mb-4 flex items-center gap-2">
+                    <Plus className="w-4 h-4 text-cyan-400" /> Log PYQ Attempt
+                  </h4>
+                  <form onSubmit={handleAddPyq} className="space-y-4">
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Subject</label>
+                      <select
+                        value={pyqSubj}
+                        onChange={(e) => setPyqSubj(e.target.value)}
+                        className="w-full"
+                      >
+                        <option value="Operating Systems">Operating Systems</option>
+                        <option value="Database Management Systems">Database Management Systems</option>
+                        <option value="Computer Networks">Computer Networks</option>
+                        <option value="Algorithms & DSA">Algorithms & DSA</option>
+                        <option value="General Aptitude">General Aptitude</option>
+                        <option value="Engineering Mathematics">Engineering Mathematics</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Topic / Sub-topic</label>
+                      <input
+                        type="text"
+                        value={pyqTopic}
+                        onChange={(e) => setPyqTopic(e.target.value)}
+                        placeholder="e.g. TCP Congestion Window Math"
+                        className="w-full"
+                        required
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Difficulty</label>
+                        <select
+                          value={pyqDifficulty}
+                          onChange={(e) => setPyqDifficulty(e.target.value)}
+                          className="w-full"
+                        >
+                          <option value="Easy">Easy</option>
+                          <option value="Medium">Medium</option>
+                          <option value="Hard">Hard</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">GATE Year</label>
+                        <input
+                          type="text"
+                          value={pyqYear}
+                          onChange={(e) => setPyqYear(e.target.value)}
+                          placeholder="e.g. 2024"
+                          className="w-full"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Attempt Status</label>
+                      <select
+                        value={pyqAttempt}
+                        onChange={(e) => setPyqAttempt(e.target.value)}
+                        className="w-full"
+                      >
+                        <option value="Solved">Solved</option>
+                        <option value="Re-attempt needed">Re-attempt needed</option>
+                        <option value="Unsolved">Unsolved</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Analysis & Key Insights</label>
+                      <textarea
+                        value={pyqAnalysis}
+                        onChange={(e) => setPyqAnalysis(e.target.value)}
+                        placeholder="What was tricky? Explain the concept/formula for revision."
+                        rows="3"
+                        className="w-full"
+                        required
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-2.5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      <Check className="w-4 h-4" /> Log PYQ Entry
+                    </button>
+                  </form>
+                </div>
+
+                {/* List column */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Search and Filters */}
+                  <div className="glass-card p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <input
+                      type="text"
+                      value={searchPyqQuery}
+                      onChange={(e) => setSearchPyqQuery(e.target.value)}
+                      placeholder="Search PYQs by subject, topic or insight..."
+                      className="w-full md:w-96 text-sm"
+                    />
+                    <div className="flex gap-4 text-xs font-semibold text-gray-400">
+                      <div>Total Logs: <span className="text-white">{pyqsList.length}</span></div>
+                      <div>Solved: <span className="text-emerald-400">{pyqsList.filter(p => p.attempt === 'Solved').length}</span></div>
+                      <div>Re-attempt: <span className="text-amber-400">{pyqsList.filter(p => p.attempt === 'Re-attempt needed').length}</span></div>
+                    </div>
+                  </div>
+
+                  {/* List Container */}
+                  <div className="space-y-4">
+                    {pyqsList.filter(p => 
+                      p.subject.toLowerCase().includes(searchPyqQuery.toLowerCase()) ||
+                      p.topic.toLowerCase().includes(searchPyqQuery.toLowerCase()) ||
+                      p.analysis.toLowerCase().includes(searchPyqQuery.toLowerCase())
+                    ).map((p) => {
+                      // Difficulty badge style
+                      let diffColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                      if (p.difficulty === "Medium") diffColor = "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
+                      if (p.difficulty === "Hard") diffColor = "bg-rose-500/10 text-rose-400 border-rose-500/20";
+
+                      // Attempt badge style
+                      let attemptColor = "bg-white/5 border-white/10 text-gray-400";
+                      if (p.attempt === "Solved") attemptColor = "bg-emerald-500/20 border-emerald-500/30 text-emerald-300";
+                      if (p.attempt === "Re-attempt needed") attemptColor = "bg-amber-500/20 border-amber-500/30 text-amber-300";
+
+                      return (
+                        <div key={p.id} className="glass-card p-5 border border-white/5 hover:border-white/10 transition-all duration-300">
+                          <div className="flex justify-between items-start gap-4">
+                            <div className="space-y-2 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-[10px] font-bold tracking-widest text-cyan-400 uppercase">
+                                  GATE {p.year}
+                                </span>
+                                <span className="text-xs text-gray-500 font-bold">•</span>
+                                <span className="text-xs text-gray-300 font-bold">{p.subject}</span>
+                                <span className={`px-2 py-0.5 rounded-full border text-[9px] font-bold ${diffColor}`}>
+                                  {p.difficulty}
+                                </span>
+                              </div>
+                              
+                              <h5 className="text-sm font-semibold text-white">{p.topic}</h5>
+                              
+                              <div className="p-3 bg-black/30 rounded-lg border border-white/5 text-xs text-gray-400 italic">
+                                &ldquo;{p.analysis}&rdquo;
+                              </div>
+
+                              <div className="flex items-center gap-4 pt-2 text-xs">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-gray-500 font-semibold">Status:</span>
+                                  <select
+                                    value={p.attempt}
+                                    onChange={(e) => handleUpdatePyqAttempt(p.id, e.target.value)}
+                                    className={`py-0.5 px-2 rounded border text-[11px] font-bold ${attemptColor}`}
+                                  >
+                                    <option value="Solved" className="bg-slate-900 text-emerald-400">Solved</option>
+                                    <option value="Re-attempt needed" className="bg-slate-900 text-amber-400">Re-attempt needed</option>
+                                    <option value="Unsolved" className="bg-slate-900 text-gray-400">Unsolved</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => handleDeletePyq(p.id)}
+                              className="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:bg-rose-500/10 hover:border-rose-500/20 hover:text-rose-400 transition-all duration-200"
+                              title="Delete Record"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {pyqsList.length === 0 && (
+                      <div className="text-center py-12 glass-card border border-white/5 text-gray-500 text-sm">
+                        No PYQ records logged yet. Use the log form to record your first Previous Year Question attempt!
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           )}

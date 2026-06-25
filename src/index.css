@@ -145,3 +145,23 @@ button {
 .float-anim {
   animation: float 4s ease-in-out infinite;
 }
+
+/* 3D Flashcard Flip */
+.flashcard-container {
+  perspective: 1000px;
+}
+.flashcard-inner {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+.flashcard-flipped {
+  transform: rotateY(180deg);
+}
+.flashcard-front, .flashcard-back {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flashcard-back {
+  transform: rotateY(180deg);
+}
+
