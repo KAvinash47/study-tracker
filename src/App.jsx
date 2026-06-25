@@ -27,7 +27,8 @@ import {
   VolumeX,
   Code2,
   AlertTriangle,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Cloud
 } from 'lucide-react';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import {
@@ -252,6 +253,131 @@ export default function App() {
   const [pyqAttempt, setPyqAttempt] = useState('Solved');
   const [pyqAnalysis, setPyqAnalysis] = useState('');
   const [searchPyqQuery, setSearchPyqQuery] = useState('');
+
+  // Database Sync states
+  const [syncPassphrase, setSyncPassphrase] = useState(() => {
+    return localStorage.getItem('sync_passphrase') || '';
+  });
+  const [syncStatus, setSyncStatus] = useState('idle'); // 'idle' | 'syncing' | 'success' | 'error'
+  const [isInitialLoading, setIsInitialLoading] = useState(false);
+
+  // Fetch initial data from database on load
+  useEffect(() => {
+    if (!syncPassphrase) return;
+
+    const fetchInitialData = async () => {
+      setIsInitialLoading(true);
+      setSyncStatus('syncing');
+      try {
+        const response = await fetch('/api/sync', {
+          headers: {
+            'x-sync-key': syncPassphrase
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Invalid passphrase or server error');
+        }
+        const data = await response.json();
+        
+        // Update states and save to localStorage
+        if (data.todos) {
+          setTodos(data.todos);
+          localStorage.setItem('todos', JSON.stringify(data.todos));
+        }
+        if (data.targets) {
+          setTargets(data.targets);
+          localStorage.setItem('targets', JSON.stringify(data.targets));
+        }
+        if (data.syllabus) {
+          setSyllabus(data.syllabus);
+          localStorage.setItem('gate_syllabus', JSON.stringify(data.syllabus));
+        }
+        if (data.logs) {
+          setLogs(data.logs);
+          localStorage.setItem('logs', JSON.stringify(data.logs));
+        }
+        if (data.spacedReviews) {
+          setSpacedReviews(data.spacedReviews);
+          localStorage.setItem('spaced_reviews', JSON.stringify(data.spacedReviews));
+        }
+        if (data.mistakes) {
+          setMistakes(data.mistakes);
+          localStorage.setItem('gate_mistakes', JSON.stringify(data.mistakes));
+        }
+        if (data.pyqs) {
+          setPyqsList(data.pyqs);
+          localStorage.setItem('gate_pyqs', JSON.stringify(data.pyqs));
+        }
+
+        setSyncStatus('success');
+      } catch (err) {
+        console.error("Initial fetch error:", err);
+        setSyncStatus('error');
+        localStorage.removeItem('sync_passphrase');
+        setSyncPassphrase('');
+        alert("Failed to sync with the database. Please verify your Sync Passphrase.");
+      } finally {
+        setIsInitialLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, [syncPassphrase]);
+
+  // Debounced auto-sync to database
+  const isFirstLoad = useRef(true);
+
+  useEffect(() => {
+    if (!syncPassphrase) return;
+    
+    // Skip sync on the very first render to prevent overwriting the DB with empty local state before fetching
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+      return;
+    }
+
+    const delayDebounce = setTimeout(async () => {
+      setSyncStatus('syncing');
+      try {
+        const response = await fetch('/api/sync', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-sync-key': syncPassphrase
+          },
+          body: JSON.stringify({
+            todos,
+            targets,
+            syllabus,
+            mistakes,
+            pyqs: pyqsList,
+            logs,
+            spacedReviews
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Sync failed');
+        }
+        setSyncStatus('success');
+      } catch (err) {
+        console.error("Sync error:", err);
+        setSyncStatus('error');
+      }
+    }, 2000); // Debounce sync for 2 seconds after state change
+
+    return () => clearTimeout(delayDebounce);
+  }, [todos, targets, syllabus, mistakes, pyqsList, logs, spacedReviews, syncPassphrase]);
+
+  // Handler to configure passphrase
+  const handlePromptPassphrase = () => {
+    const key = prompt("Enter your private Database Sync Passphrase:");
+    if (key !== null) {
+      localStorage.setItem('sync_passphrase', key);
+      setSyncPassphrase(key);
+      isFirstLoad.current = true; // reset first load flag to trigger fetch
+    }
+  };
 
   // Sync to localStorage
   useEffect(() => {
@@ -1090,6 +1216,46 @@ export default function App() {
     { id: 'analytics', label: 'Analytics & Reports', icon: BarChart3 }
   ];
 
+  const renderSyncIndicator = () => {
+    if (!syncPassphrase) {
+      return (
+        <button
+          onClick={handlePromptPassphrase}
+          className="flex items-center gap-1.5 bg-cyan-500/10 hover:bg-cyan-500/25 border border-cyan-500/25 text-cyan-400 font-bold px-2.5 py-1 rounded-lg text-[10px] uppercase tracking-wider transition-all duration-300 cursor-pointer"
+          title="Enable cloud database backup and sync"
+        >
+          <Cloud className="w-3.5 h-3.5" />
+          Cloud Sync
+        </button>
+      );
+    }
+
+    let statusText = "Synced";
+    let statusStyle = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+    let iconStyle = "text-emerald-400";
+
+    if (syncStatus === 'syncing') {
+      statusText = "Syncing";
+      statusStyle = "bg-amber-500/10 border-amber-500/20 text-amber-400";
+      iconStyle = "text-amber-400 animate-spin";
+    } else if (syncStatus === 'error') {
+      statusText = "Sync Fail";
+      statusStyle = "bg-rose-500/10 border-rose-500/20 text-rose-400 cursor-pointer hover:bg-rose-500/20";
+      iconStyle = "text-rose-400 animate-pulse";
+    }
+
+    return (
+      <div
+        onClick={syncStatus === 'error' ? handlePromptPassphrase : undefined}
+        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${statusStyle}`}
+        title={syncStatus === 'error' ? "Click to re-enter passphrase" : "Database backup status"}
+      >
+        <Cloud className={`w-3.5 h-3.5 ${iconStyle}`} />
+        <span>{statusText}</span>
+      </div>
+    );
+  };
+
   return (
     <div className="relative min-h-screen flex flex-col md:flex-row text-slate-100 overflow-x-hidden">
       {/* 3D WebGL background linked to streak & daily completion */}
@@ -1103,9 +1269,12 @@ export default function App() {
         <h1 className="text-xl font-extrabold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent tracking-tight">
           METRICSTUDY
         </h1>
-        <div className="flex items-center gap-2 bg-purple-500/10 px-3 py-1.5 rounded-lg border border-purple-500/20">
-          <Flame className="w-4 h-4 text-orange-500 fill-orange-500 animate-pulse" />
-          <span className="font-bold text-white text-xs">{getStreak()} Days</span>
+        <div className="flex items-center gap-3">
+          {renderSyncIndicator()}
+          <div className="flex items-center gap-2 bg-purple-500/10 px-3 py-1.5 rounded-lg border border-purple-500/20">
+            <Flame className="w-4 h-4 text-orange-500 fill-orange-500 animate-pulse" />
+            <span className="font-bold text-white text-xs">{getStreak()} Days</span>
+          </div>
         </div>
       </div>
 
@@ -1114,10 +1283,13 @@ export default function App() {
         <div>
           {/* Logo & Branding */}
           <div className="mb-8">
-            <h1 className="text-2xl font-black bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent tracking-tight">
-              METRICSTUDY
-            </h1>
-            <p className="text-gray-500 text-xs mt-1">WebGL Analytics Dashboard</p>
+            <div className="flex justify-between items-center mb-1">
+              <h1 className="text-2xl font-black bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent tracking-tight animate-pulse">
+                METRICSTUDY
+              </h1>
+              {renderSyncIndicator()}
+            </div>
+            <p className="text-gray-500 text-xs">WebGL Analytics Dashboard</p>
           </div>
 
           {/* Navigation Links */}
