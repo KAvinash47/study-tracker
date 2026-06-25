@@ -1,39 +1,37 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Stars, Float } from '@react-three/drei';
+import { Stars, Float } from '@react-three/drei';
 import * as THREE from 'three';
 
-// A floating rotating torus knot with a metallic glass shader
-function FloatingShape({ position, color, speed, args }) {
+// Floating shape that reacts to speed and color props
+function FloatingShape({ position, color, baseSpeed, args, speedMultiplier }) {
   const meshRef = useRef();
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
-    meshRef.current.rotation.x = time * speed * 0.5;
-    meshRef.current.rotation.y = time * speed;
-    // Slowly hover up and down
+    const effectiveSpeed = baseSpeed * speedMultiplier;
+    meshRef.current.rotation.x = time * effectiveSpeed * 0.5;
+    meshRef.current.rotation.y = time * effectiveSpeed;
     meshRef.current.position.y = position[1] + Math.sin(time + position[0]) * 0.2;
   });
 
   return (
     <mesh ref={meshRef} position={position}>
-      <torusKnotGeometry args={args || [0.4, 0.15, 120, 16]} />
+      <torusKnotGeometry args={args || [0.35, 0.1, 100, 16]} />
       <meshPhysicalMaterial
         color={color}
-        roughness={0.1}
-        metalness={0.9}
+        roughness={0.15}
+        metalness={0.8}
         clearcoat={1.0}
-        clearcoatRoughness={0.1}
-        transmission={0.6}
+        transmission={0.4}
         thickness={0.5}
-        ior={1.5}
       />
     </mesh>
   );
 }
 
-// Interactive particles reacting to mouse
-function ParticleSystem({ count = 80 }) {
+// Particle system whose rotation speed adapts to the study state
+function ParticleSystem({ count = 80, speedMultiplier }) {
   const pointsRef = useRef();
   const [positions] = useState(() => {
     const arr = new Float32Array(count * 3);
@@ -45,8 +43,7 @@ function ParticleSystem({ count = 80 }) {
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
-    pointsRef.current.rotation.y = time * 0.03;
-    pointsRef.current.rotation.x = Math.sin(time * 0.01) * 0.05;
+    pointsRef.current.rotation.y = time * 0.02 * speedMultiplier;
   });
 
   return (
@@ -59,37 +56,81 @@ function ParticleSystem({ count = 80 }) {
       </bufferGeometry>
       <pointsMaterial
         color="#8b5cf6"
-        size={0.06}
+        size={0.05}
         sizeAttenuation
         transparent
-        opacity={0.6}
+        opacity={0.5}
       />
     </points>
   );
 }
 
-export default function Background3D() {
+export default function Background3D({ streak = 0, studiedToday = false }) {
+  // Speed multiplier based on streak: base 1.0, increases by 20% per streak day, max 2.5x
+  const speedMultiplier = Math.min(1.0 + streak * 0.2, 2.5);
+  
+  // Muted colors if not studied today, bright glowing neon colors if studied today
+  const primaryColor = studiedToday ? "#fbbf24" : "#4b5563"; // Gold vs Muted Gray
+  const secondaryColor = studiedToday ? "#ec4899" : "#3b82f6"; // Neon Pink vs Muted Blue
+  const tertiaryColor = studiedToday ? "#a855f7" : "#1f2937"; // Purple vs Dark Slate
+
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: -1, pointerEvents: 'none' }}>
       <Canvas camera={{ position: [0, 0, 5], fov: 60 }}>
-        <ambientLight intensity={0.4} />
-        <directionalLight position={[5, 5, 5]} intensity={1.5} color="#c084fc" />
-        <directionalLight position={[-5, -5, -5]} intensity={0.8} color="#06b6d4" />
-        <pointLight position={[0, 3, 0]} intensity={1.2} color="#ec4899" />
+        <ambientLight intensity={studiedToday ? 0.6 : 0.3} />
         
-        <ParticleSystem count={120} />
+        {/* Colorful directional lights */}
+        <directionalLight 
+          position={[5, 5, 5]} 
+          intensity={studiedToday ? 2.0 : 0.8} 
+          color={primaryColor} 
+        />
+        <directionalLight 
+          position={[-5, -5, -5]} 
+          intensity={studiedToday ? 1.5 : 0.5} 
+          color={secondaryColor} 
+        />
         
-        <Float speed={1.5} rotationIntensity={1} floatIntensity={1}>
-          <FloatingShape position={[-2.2, 1.2, -1]} color="#a855f7" speed={0.4} args={[0.3, 0.1, 100, 16]} />
-        </Float>
-        <Float speed={2} rotationIntensity={1.2} floatIntensity={1}>
-          <FloatingShape position={[2.5, -1.3, -0.5]} color="#06b6d4" speed={0.3} args={[0.35, 0.1, 100, 16]} />
-        </Float>
-        <Float speed={1} rotationIntensity={0.8} floatIntensity={0.8}>
-          <FloatingShape position={[-2.5, -1.5, -2]} color="#ec4899" speed={0.2} args={[0.25, 0.08, 80, 12]} />
+        <ParticleSystem count={100} speedMultiplier={speedMultiplier} />
+        
+        <Float speed={1.5 * speedMultiplier} rotationIntensity={1} floatIntensity={1}>
+          <FloatingShape 
+            position={[-2.2, 1.2, -1]} 
+            color={primaryColor} 
+            baseSpeed={0.3} 
+            speedMultiplier={speedMultiplier}
+            args={[0.3, 0.09, 100, 16]}
+          />
         </Float>
         
-        <Stars radius={100} depth={50} count={300} factor={4} saturation={0.5} fade speed={1.2} />
+        <Float speed={2 * speedMultiplier} rotationIntensity={1.2} floatIntensity={1}>
+          <FloatingShape 
+            position={[2.5, -1.3, -0.5]} 
+            color={secondaryColor} 
+            baseSpeed={0.25} 
+            speedMultiplier={speedMultiplier}
+            args={[0.35, 0.1, 100, 16]}
+          />
+        </Float>
+
+        <Float speed={1 * speedMultiplier} rotationIntensity={0.8} floatIntensity={0.8}>
+          <FloatingShape 
+            position={[-2.5, -1.5, -2]} 
+            color={tertiaryColor} 
+            baseSpeed={0.2} 
+            speedMultiplier={speedMultiplier}
+            args={[0.25, 0.08, 80, 12]}
+          />
+        </Float>
+        
+        <Stars 
+          radius={100} 
+          depth={50} 
+          count={studiedToday ? 400 : 150} 
+          factor={studiedToday ? 5 : 2} 
+          fade 
+          speed={1.5 * speedMultiplier} 
+        />
       </Canvas>
     </div>
   );
